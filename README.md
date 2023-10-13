@@ -55,6 +55,7 @@ Once your preferred template has been initialized, you can use the provided shel
 | [Rust]                   | [`rust`](./rust/)             |
 | [Scala]                  | [`scala`](./scala/)           |
 | [Shell]                  | [`shell`](./shell/)           |
+| [Typescript]             | [`typescript`](./typescript/)           |
 | [Zig]                    | [`zig`](./zig/)               |
 
 ## Template contents
@@ -242,6 +243,10 @@ The sections below list what each template includes. In all cases, you're free t
 ### [`shell`](./shell/)
 
 - [shellcheck] 0.9.0
+
+### [`typescript`](./typescript/)
+
+- [node.js] 18.9.0
 
 ### [`zig`](./zig/)
 
