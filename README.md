@@ -41,6 +41,7 @@ Once your preferred template has been initialized, you can use the provided shel
 | [Java]                   | [`java`](./java/)             |
 | [Kotlin]                 | [`kotlin`](./kotlin/)         |
 | [LaTeX]                  | [`latex`](./latex/)           |
+| [Lua]                    | [`lua`](./lua/)               |
 | [Nickel]                 | [`nickel`](./nickel/)         |
 | [Nim]                    | [`nim`](./nim/)               |
 | [Nix]                    | [`nix`](./nix/)               |
@@ -146,6 +147,10 @@ The sections below list what each template includes. In all cases, you're free t
 - [texlive]
 - [tectonic]
 - [texlab]
+
+### [`latex`](./latex/)
+
+- [lua] 5.1
 
 ### [`nickel`](./nickel/)
 
