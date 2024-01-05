@@ -125,6 +125,11 @@
           description = "LaTeX development environment";
         };
 
+        lua = {
+          path = ./lua;
+          description = "Lua development environment";
+        };
+
         nickel = {
           path = ./nickel;
           description = "Nickel development environment";
