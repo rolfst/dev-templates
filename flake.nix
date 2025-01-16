@@ -1,28 +1,183 @@
 {
   description = "Ready-made templates for easily creating flake-driven environments";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2405.*";
 
-  outputs = {
-    self,
-    nixpkgs,
-  }: let
-    overlays = [
-      (final: prev: let
-        exec = pkg: "${prev.${pkg}}/bin/${pkg}";
-      in {
-        format = prev.writeScriptBin "format" ''
-          ${exec "nixpkgs-fmt"} **/*.nix
-        '';
-        dvt = prev.writeScriptBin "dvt" ''
-          if [ -z $1 ]; then
+  outputs = { self, nixpkgs }:
+    let
+      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      forEachSupportedSystem = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
+        pkgs = nixpkgs.legacyPackages.${system};
+      });
+
+      scriptDrvs = forEachSupportedSystem ({ pkgs }:
+        let
+          getSystem = "SYSTEM=$(nix eval --impure --raw --expr 'builtins.currentSystem')";
+          forEachDir = exec: ''
+            for dir in */; do
+              (
+                cd "''${dir}"
+
+                ${exec}
+              )
+            done
+          '';
+        in
+        {
+          format = pkgs.writeShellApplication {
+            name = "format";
+            runtimeInputs = with pkgs; [ nixpkgs-fmt ];
+            text = ''
+              shopt -s globstar
+
+              nixpkgs-fmt -- **/*.nix
+            '';
+          };
+
+          # only run this locally, as Actions will run out of disk space
+          build = pkgs.writeShellApplication {
+            name = "build";
+            text = ''
+              ${getSystem}
+
+              ${forEachDir ''
+                echo "building ''${dir}"
+                nix build ".#devShells.''${SYSTEM}.default"
+              ''}
+            '';
+          };
+
+          check = pkgs.writeShellApplication {
+            name = "check";
+            text = forEachDir ''
+              echo "checking ''${dir}"
+              nix flake check --all-systems --no-build
+            '';
+          };
+
+          update = pkgs.writeShellApplication {
+            name = "update";
+            text = forEachDir ''
+              echo "updating ''${dir}"
+              nix flake update
+            '';
+          };
+        });
+    in
+    {
+      devShells = forEachSupportedSystem ({ pkgs }: {
+        default = pkgs.mkShell {
+          packages =
+            with scriptDrvs.${pkgs.system}; [
+              build
+              check
+              format
+              update
+            ] ++ [ pkgs.nixpkgs-fmt ];
+        };
+      });
+
+      packages = forEachSupportedSystem ({ pkgs }:
+        rec {
+          default = dvt;
+          dvt = pkgs.writeShellApplication {
+            name = "dvt";
+            bashOptions = [ "errexit" "pipefail" ];
+            text = ''
+              if [ -z "''${1}" ]; then
             echo "no template specified"
             exit 1
           fi
+=======
+  outputs = { self, nixpkgs }:
+    let
+      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      forEachSupportedSystem = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
+        pkgs = nixpkgs.legacyPackages.${system};
+      });
+
+      scriptDrvs = forEachSupportedSystem ({ pkgs }:
+        let
+          getSystem = "SYSTEM=$(nix eval --impure --raw --expr 'builtins.currentSystem')";
+          forEachDir = exec: ''
+            for dir in */; do
+              (
+                cd "''${dir}"
+
+                ${exec}
+              )
+            done
+          '';
+        in
+        {
+          format = pkgs.writeShellApplication {
+            name = "format";
+            runtimeInputs = with pkgs; [ nixpkgs-fmt ];
+            text = ''
+              shopt -s globstar
+
+              nixpkgs-fmt -- **/*.nix
+            '';
+          };
+
+          # only run this locally, as Actions will run out of disk space
+          build = pkgs.writeShellApplication {
+            name = "build";
+            text = ''
+              ${getSystem}
+
+              ${forEachDir ''
+                echo "building ''${dir}"
+                nix build ".#devShells.''${SYSTEM}.default"
+              ''}
+            '';
+          };
+
+          check = pkgs.writeShellApplication {
+            name = "check";
+            text = forEachDir ''
+              echo "checking ''${dir}"
+              nix flake check --all-systems --no-build
+            '';
+          };
+
+          update = pkgs.writeShellApplication {
+            name = "update";
+            text = forEachDir ''
+              echo "updating ''${dir}"
+              nix flake update
+            '';
+          };
+        });
+    in
+    {
+      devShells = forEachSupportedSystem ({ pkgs }: {
+        default = pkgs.mkShell {
+          packages =
+            with scriptDrvs.${pkgs.system}; [
+              build
+              check
+              format
+              update
+            ] ++ [ pkgs.nixpkgs-fmt ];
+        };
+      });
+
+      packages = forEachSupportedSystem ({ pkgs }:
+        rec {
+          default = dvt;
+          dvt = pkgs.writeShellApplication {
+            name = "dvt";
+            bashOptions = [ "errexit" "pipefail" ];
+            text = ''
+              if [ -z "''${1}" ]; then
+                echo "no template specified"
+                exit 1
+              fi
 
           TEMPLATE=$1
 
-          ${exec "nix"} \
+              nix \
             --experimental-features 'nix-command flakes' \
             flake init \
             --template \
@@ -51,15 +206,21 @@
         default = pkgs.mkShell {
           packages = with pkgs; [format update];
         };
-      });
-
-      packages = forEachSupportedSystem ({pkgs}: rec {
-        default = dvt;
-        inherit (pkgs) dvt;
-      });
     }
     // {
       templates = rec {
+        default = empty;
+
+        bun = {
+          path = ./bun;
+          description = "Bun development environment";
+        };
+
+        c-cpp = {
+          path = ./c-cpp;
+          description = "C/C++ development environment";
+        };
+
         clojure = {
           path = ./clojure;
           description = "Clojure development environment";
@@ -90,6 +251,11 @@
           description = "Elm development environment";
         };
 
+        empty = {
+          path = ./empty;
+          description = "Empty dev template that you can customize at will";
+        };
+
         gleam = {
           path = ./gleam;
           description = "Gleam development environment";
@@ -115,6 +281,11 @@
           description = "Java development environment";
         };
 
+        jupyter = {
+          path = ./jupyter;
+          description = "Jupyter development environment";
+        };
+
         kotlin = {
           path = ./kotlin;
           description = "Kotlin development environment";
@@ -125,9 +296,9 @@
           description = "LaTeX development environment";
         };
 
-        lua = {
-          path = ./lua;
-          description = "Lua development environment";
+        lean4 = {
+          path = ./lean4;
+          description = "Lean 4 development environment";
         };
 
         nickel = {
@@ -150,6 +321,11 @@
           description = "Node.js development environment";
         };
 
+        ocaml = {
+          path = ./ocaml;
+          description = "OCaml development environment";
+        };
+
         opa = {
           path = ./opa;
           description = "Open Policy Agent development environment";
@@ -158,6 +334,11 @@
         php = {
           path = ./php;
           description = "PHP development environment";
+        };
+
+        platformio = {
+          path = ./platformio;
+          description = "PlatformIO development environment";
         };
 
         protobuf = {
@@ -178,6 +359,11 @@
         python = {
           path = ./python;
           description = "Python development environment";
+        };
+
+        r = {
+          path = ./r;
+          description = "R development environment";
         };
 
         ruby = {
@@ -208,6 +394,20 @@
         typescript = {
           path = ./typescript;
           description = "Typescript development environment";
+
+        swi-prolog = {
+          path = ./swi-prolog;
+          description = "Swi-prolog development environment";
+        };
+
+        swift = {
+          path = ./swift;
+          description = "Swift development environment";
+        };
+
+        vlang = {
+          path = ./vlang;
+          description = "Vlang developent environment";
         };
 
         zig = {
@@ -216,6 +416,8 @@
         };
 
         # Aliases
+        c = c-cpp;
+        cpp = c-cpp;
         rt = rust-toolchain;
       };
     };

@@ -1,7 +1,7 @@
 {
   description = "A Nix-flake-based Nix development environment";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*.tar.gz";
 
   outputs = { self, nixpkgs }:
     let
@@ -17,11 +17,10 @@
             cachix
             lorri
             niv
-            nixfmt
+            nixfmt-classic
             statix
             vulnix
             haskellPackages.dhall-nix
-            rnix-lsp
           ];
         };
       });
