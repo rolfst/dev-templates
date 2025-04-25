@@ -32,7 +32,6 @@ Once your preferred template has been initialized, you can use the provided shel
 | [Bun]                            | [`bun`](./bun/)                       |
 | [C]/[C++]                        | [`c-cpp`](./c-cpp/)                   |
 | [Clojure]                        | [`clojure`](./clojure/)               |
-| [C#][csharp]                     | [`csharp`](./csharp/)                 |
 | [Cue]                            | [`cue`](./cue/)                       |
 | [Dhall]                          | [`dhall`](./dhall/)                   |
 | [Elixir]                         | [`elixir`](./elixir/)                 |
@@ -53,6 +52,7 @@ Once your preferred template has been initialized, you can use the provided shel
 | [Nix]                            | [`nix`](./nix/)                       |
 | [Node.js][node]                  | [`node`](./node/)                     |
 | [OCaml]                          | [`ocaml`](./ocaml/)                   |
+| [Odin]                           | [`odin`](./odin/)                     |
 | [Open Policy Agent][opa]         | [`opa`](./opa)                        |
 | [PHP]                            | [`php`](./php/)                       |
 | [PlatformIO]                     | [`platformio`](./platformio/)         |
@@ -99,13 +99,6 @@ The sections below list what each template includes. In all cases, you're free t
 - [Clojure] 1.11.1.1347
 - [Boot] 2.8.3
 - [Leiningen] 2.10.0
-
-### [`csharp`](./csharp/)
-
-- [dotnet] sdk 7 (7.0.305)
-- [omnisharp-roslyn]
-- [Mono] 6.12.0.182
-- [msbuild] 16.10.1
 
 ### [`cue`](./cue/)
 
@@ -234,6 +227,10 @@ A dev template that's fully customizable.
 - [odoc] 2.2.0
 - [ocamlformat] 0.25.1
 
+### [`odin`](./odin/)
+
+- [Odin] 4.14.1
+
 ### [`opa`](./opa/)
 
 - [Open Policy Agent][opa] 0.54.0
@@ -353,7 +350,6 @@ All of the templates have only the root [flake](./flake.nix) as a flake input. T
 [conan]: https://conan.io
 [conftest]: https://conftest.dev
 [cppcheck]: http://cppcheck.sourceforge.net
-[csharp]: https://dotnet.microsoft.com/en-us/languages/csharp
 [cue]: https://cuelang.org
 [damon]: https://github.com/hashicorp/damon
 [dhall]: https://dhall-lang.org
@@ -421,6 +417,7 @@ All of the templates have only the root [flake](./flake.nix) as a flake input. T
 [ocaml]: https://ocaml.org
 [ocamlformat]: https://github.com/ocaml-ppx/ocamlformat
 [odoc]: https://github.com/ocaml/odoc
+[odin]: https://github.com/odin-lang/Odin
 [omnisharp-roslyn]: https://github.com/OmniSharp/omnisharp-roslyn
 [opa]: https://openpolicyagent.org
 [pandoc]: https://pandoc.org
